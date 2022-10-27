@@ -123,50 +123,45 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "bucket_server_sid
 
   rule {
     apply_server_side_encryption_by_default {
-      # kms_master_key_id = module.kms_sftp.key_arn
-      # sse_algorithm     = "aws:kms"      
-      sse_algorithm     = "AES256"
+      kms_master_key_id = module.kms_sftp.key_arn
+      sse_algorithm     = "aws:kms"      
+      # sse_algorithm     = "AES256"
     }
   }
 }
 
-# module "kms_sftp" {
-#   source = "git::https://gitlab.lukapo.com/terraform/aws/module.kms?ref=1.1.0"
+module "kms_sftp" {
+  source = "git::https://gitlab.lukapo.com/terraform/aws/module.kms?ref=1.1.0"
 
-#   enabled                 = true
-#   description             = "KMS key for sftp s3 bucket"
-#   deletion_window_in_days = 7
-#   enable_key_rotation     = true
-#   alias                   = "alias/csftp-s3-bucket-kms-key"
-#   policy                  = data.aws_iam_policy_document.kms-sftp.json  
-#   tags = merge(
-#     {
-#       "Name" = "ew-sftp-kms"
-#     },
-#     var.tags,
-#   )
-# }
+  enabled                 = true
+  description             = "KMS key for sftp s3 bucket"
+  deletion_window_in_days = 7
+  enable_key_rotation     = true
+  alias                   = "alias/sftp-s3-bucket-kms-key"
+  policy                  = data.aws_iam_policy_document.kms-sftp.json  
+  tags = var.tags
+}
 
-# data "aws_iam_policy_document" "kms-sftp" {
-#   version = "2012-10-17"
-#   statement {
-#     sid    = "Enable IAM User Permissions"
-#     effect = "Allow"
-#     principals {
-#       type        = "AWS"
-#       identifiers = ["*"]
-#     }
-#     actions   = ["kms:*"]
-#     resources = ["*"]
-#   }
-#   statement {
-#     sid    = "Allow alias creation during setup"
-#     effect = "Allow"
-#     principals {
-#       type        = "AWS"
-#       identifiers = ["*"]
-#     }
-#     actions   = ["kms:CreateAlias"]
-#     resources = ["*"]
-#   }
-# }
+data "aws_iam_policy_document" "kms-sftp" {
+  version = "2012-10-17"
+  statement {
+    sid    = "Enable IAM User Permissions"
+    effect = "Allow"
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+    actions   = ["kms:*"]
+    resources = ["*"]
+  }
+  statement {
+    sid    = "Allow alias creation during setup"
+    effect = "Allow"
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+    actions   = ["kms:CreateAlias"]
+    resources = ["*"]
+  }
+}
